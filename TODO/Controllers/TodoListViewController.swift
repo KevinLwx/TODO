@@ -32,12 +32,6 @@ class TodoListViewController: UITableViewController {
     newItem3.title = "修改密码"
     itemArray.append(newItem3)
     
-    for index in 4...120 {
-      let newItem = Item()
-      newItem.title = "第\(index)件事务"
-      itemArray.append(newItem)
-    }
-    
   }
   
   //MARK: - Table View DataSource methods
@@ -94,7 +88,7 @@ class TodoListViewController: UITableViewController {
       newItem.title = textField.text!
       
       self.itemArray.append(newItem)
-      self.defaults.set(self.itemArray, forKey: "ToDoListArray")
+//      self.defaults.set(self.itemArray, forKey: "ToDoListArray")
       self.tableView.reloadData()
     }
     

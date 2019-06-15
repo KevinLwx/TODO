@@ -86,9 +86,12 @@ class TodoListViewController: UITableViewController {
       
       let newItem = Item()
       newItem.title = textField.text!
-      
       self.itemArray.append(newItem)
-//      self.defaults.set(self.itemArray, forKey: "ToDoListArray")
+        //只可以存基础类型的int double float bool array dictionary 。复杂对象不行
+        
+        self.defaults.set(self.itemArray, forKey: "ToDoListArray")
+        
+     
       self.tableView.reloadData()
     }
     

@@ -10,29 +10,32 @@ import UIKit
 
 class TodoListViewController: UITableViewController {
   
-  let defaults = UserDefaults.standard
+//  let defaults = UserDefaults.standard
   
   var itemArray = [Item]()
-  
+   let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("item.plist")
+    
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
+   
+    
     print(dataFilePath!)
     
-    let newItem = Item()
-    newItem.title = "购买水杯"
-    itemArray.append(newItem)
-    
-    let newItem2 = Item()
-    newItem2.title = "吃药"
-    itemArray.append(newItem2)
-    
-    let newItem3 = Item()
-    newItem3.title = "修改密码"
-    itemArray.append(newItem3)
+    loadItem()
     
   }
+    func loadItem() {
+        if let data = try? Data(contentsOf: dataFilePath!){
+            let decoder = PropertyListDecoder()
+            do{
+                itemArray = try decoder.decode([Item].self, from: data)
+            }catch{
+                print("解码错误")
+            }
+            
+        }
+    }
   
   //MARK: - Table View DataSource methods
   override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -60,19 +63,35 @@ class TodoListViewController: UITableViewController {
   //MARK: - Table View Delegate methods
   override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     
-    if itemArray[indexPath.row].done == false {
-      itemArray[indexPath.row].done = true
-    }else {
-      itemArray[indexPath.row].done = false
+    
+    itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+    saveItems()
+    tableView.deselectRow(at: indexPath, animated: true)
+    
+//    if itemArray[indexPath.row].done == false {
+//      itemArray[indexPath.row].done = true
+//    }else {
+//      itemArray[indexPath.row].done = false
+//    }
+    
+//    tableView.beginUpdates()
+//    tableView.reloadRows(at: [indexPath], with: UITableViewRowAnimation.automatic)
+//    tableView.endUpdates()
+//
+//    tableView.deselectRow(at: indexPath, animated: true)
+  }
+    
+    func saveItems() {
+        let encoder = PropertyListEncoder()
+        do {
+            let data = try encoder.encode(itemArray)
+            try data.write(to: dataFilePath!)
+            
+        }catch {
+            print("编码错误: \(error)")
+        }
     }
     
-    tableView.beginUpdates()
-    tableView.reloadRows(at: [indexPath], with: UITableViewRowAnimation.automatic)
-    tableView.endUpdates()
-    
-    tableView.deselectRow(at: indexPath, animated: true)
-  }
-  
   //MARK: - Add New Items
   
   @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
@@ -87,10 +106,11 @@ class TodoListViewController: UITableViewController {
       let newItem = Item()
       newItem.title = textField.text!
       self.itemArray.append(newItem)
+        self.saveItems()
+       
+        
         //只可以存基础类型的int double float bool array dictionary 。复杂对象不行
-        
-        self.defaults.set(self.itemArray, forKey: "ToDoListArray")
-        
+        //        self.defaults.set(self.itemArray, forKey: "ToDoListArray")
      
       self.tableView.reloadData()
     }
@@ -103,6 +123,8 @@ class TodoListViewController: UITableViewController {
     alert.addAction(action)
     present(alert, animated: true, completion: nil)
   }
+    
+ 
   
 }
 
